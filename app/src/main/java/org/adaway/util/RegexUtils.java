@@ -21,12 +21,17 @@
 package org.adaway.util;
 
 import com.google.common.net.InetAddresses;
-import com.google.common.net.InternetDomainName;
 
+import org.apache.commons.validator.routines.DomainValidator;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 import java.util.regex.Pattern;
 
 public class RegexUtils {
     private static final Pattern WILDCARD_PATTERN = Pattern.compile("[*?]");
+    private static final DomainValidator DOMAIN_VALIDATOR = DomainValidator.getInstance(true);
 
     /**
      * Check whether a hostname is valid.
@@ -35,7 +40,18 @@ public class RegexUtils {
      * @return return {@code true} if hostname is valid, {@code false} otherwise.
      */
     public static boolean isValidHostname(String hostname) {
-        return InternetDomainName.isValid(hostname);
+//        try {
+////            ExecutorService executor = AppExecutors.getInstance().networkIO();
+////            return executor.submit(() -> DOMAIN_VALIDATOR.isValid(hostname)).get();
+//            return ForkJoinPool.commonPool().submit(() -> DOMAIN_VALIDATOR.isValid(hostname)).get();
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+        return DOMAIN_VALIDATOR.isValid(hostname);
+//        return InternetDomainName.isValid(hostname);
     }
 
     /**
@@ -58,7 +74,7 @@ public class RegexUtils {
         // Clear wildcards from host name then validate it
         String clearedHostname = WILDCARD_PATTERN.matcher(hostname).replaceAll("");
         // Replace wildcards from host name by an alphanumeric character
-        String replacedHostname = WILDCARD_PATTERN.matcher(hostname).replaceAll("a");
+        String replacedHostname = WILDCARD_PATTERN.matcher(hostname).replaceAll("a"); // TODO Use only one matcher?
         // Check if any hostname is valid
         return isValidHostname(clearedHostname) || isValidHostname(replacedHostname);
     }
