@@ -1,9 +1,6 @@
 name: Android CI
 
-on:
-  push:
-    branches:
-      - master
+on: push
 
 jobs:
   build:
@@ -55,9 +52,3 @@ jobs:
         with:
           name: AdAway-dev
           path: app/build/outputs/apk/release/app-release-unsigned.apk
-
-      - name: Analyze project
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew -Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m sonarqube
