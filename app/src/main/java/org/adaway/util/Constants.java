@@ -46,8 +46,10 @@ public class Constants {
     public static final String COMMAND_CHMOD_644 = "chmod 644";
 
     public static final String ANDROID_SYSTEM_PATH = System.getProperty("java.home", "/system");
-    public static final String ANDROID_SYSTEM_ETC_HOSTS = ANDROID_SYSTEM_PATH + FILE_SEPARATOR
-            + "etc" + FILE_SEPARATOR + HOSTS_FILENAME;
+    public static final String ANDROID_SYSTEM_ETC_HOSTS = "storage" + FILE_SEPARATOR
+            + "emulated" + FILE_SEPARATOR
+            + "0" + FILE_SEPARATOR
+            + HOSTS_FILENAME;
 
     /**
      * Check if debug mode is enabled.
