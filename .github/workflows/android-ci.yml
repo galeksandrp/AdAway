@@ -3,7 +3,7 @@ name: Android CI
 on:
   push:
     branches:
-      - master
+      - '*'
 
 jobs:
   build:
@@ -12,6 +12,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create .gradle
+        run: mkdir -p ~/.gradle
+
+      - name: Create gradle.properties
+        run: |
+          echo "signingStoreLocation=$GITHUB_WORKSPACE/key.store
+          signingStorePassword=${{ secrets.SIGNING_STORE_PASSWORD }}
+          signingKeyAlias=${{ secrets.SIGNING_KEY_ALIAS }}
+          signingKeyPassword=${{ secrets.SIGNING_KEY_PASSWORD }}" > ~/.gradle/gradle.properties
 
       - name: set up JDK 17
         uses: actions/setup-java@v4
@@ -27,6 +37,8 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
+      - run: sed -i 's% ANDROID_SYSTEM_ETC_HOSTS .*% ANDROID_SYSTEM_ETC_HOSTS = "/storage/emulated/0/hosts";%g' app/src/main/java/org/adaway/util/Constants.java
+
       - name: Run unit tests
         run: ./gradlew test --stacktrace
 
@@ -39,6 +51,18 @@ jobs:
       #     name: AdAway-dev
       #     path: app/build/outputs/apk/release/app-release-unsigned.apk
       
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AdAway-dev
+          path: app/build/outputs/apk/release/*.apk
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: vlatest
+          files: app/build/outputs/apk/release/*.apk
+
       - name: Update dependency graph
         uses: mikepenz/gradle-dependency-submission@v0.8.5 # Deprecated: need to be changed
         with:
